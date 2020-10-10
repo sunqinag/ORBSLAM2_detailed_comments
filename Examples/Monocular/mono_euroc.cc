@@ -26,6 +26,7 @@
 #include<opencv2/core/core.hpp>
 #include<System.h>
 #include<unistd.h>
+
 using namespace std;
 
 /**
@@ -38,14 +39,24 @@ using namespace std;
 void LoadImages(const string &strImagePath, const string &strPathTimes,
                 vector<string> &vstrImages, vector<double> &vTimeStamps);
 
-int main(int argc, char **argv)
-{
+//int main(int argc, char **argv)
+int main() {
     // step 0 检查输入参数个数是否足够
-    if(argc != 5)
-    {
-        cerr << endl << "Usage: ./mono_tum path_to_vocabulary path_to_settings path_to_image_folder path_to_times_file" << endl;
-        return 1;
-    }
+//    if(argc != 5)
+//    {
+//        cerr << endl << "Usage: ./mono_tum path_to_vocabulary path_to_settings path_to_image_folder path_to_times_file" << endl;
+//        return 1;
+//    }
+//    cout<<"argv[0]:"<<argv[0]<<endl;
+//    cout<<"argv[1]:"<<argv[1]<<endl;
+//    cout<<"argv[2]:"<<argv[2]<<endl;
+//    cout<<"argv[3]:"<<argv[3]<<endl;
+//    cout<<"argv[4]:"<<argv[4]<<endl;
+
+    const char *path_to_vocabulary = "/home/xtcsun/Github/ORBSLAM2_detailed_comments/Vocabulary/ORBvoc.txt";
+    const char *path_to_settings = "/home/xtcsun/Github/ORBSLAM2_detailed_comments/Examples/Monocular/EuRoC.yaml";
+    const char *path_to_image_folder = "/home/xtcsun/Data/Euroc/V2_02_medium/mav0/cam0/data";
+    const char *path_to_times_file = "/home/xtcsun/Github/ORBSLAM2_detailed_comments/Examples/Monocular/EuRoC_TimeStamps/V202.txt";
 
     // step 1 加载图像
     // Retrieve paths to images
@@ -53,16 +64,15 @@ int main(int argc, char **argv)
     vector<string> vstrImageFilenames;
     // 时间戳
     vector<double> vTimestamps;
-    LoadImages(string(argv[3]),             // path_to_image_folder
-               string(argv[4]),             // path_to_times_file
+    LoadImages(path_to_image_folder,             // path_to_image_folder
+               path_to_times_file,             // path_to_times_file
                vstrImageFilenames,          // 读取到的图像名称数组
                vTimestamps);                // 时间戳数组
 
     // 当前图像序列中的图像数目
     int nImages = vstrImageFilenames.size();
 
-    if(nImages<=0)
-    {
+    if (nImages <= 0) {
         cerr << "ERROR: Failed to load images" << endl;
         return 1;
     }
@@ -70,10 +80,10 @@ int main(int argc, char **argv)
     // step 2 加载SLAM系统
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     ORB_SLAM2::System SLAM(
-        argv[1],                            // path_to_vocabulary
-        argv[2],                            // path_to_settings
-        ORB_SLAM2::System::MONOCULAR,       // 单目模式
-        true);                              // 启用可视化查看器
+            path_to_vocabulary,                            // path_to_vocabulary
+            path_to_settings,                            // path_to_settings
+            ORB_SLAM2::System::MONOCULAR,       // 单目模式
+            true);                              // 启用可视化查看器
 
     // step 3 运行前准备
     // Vector for tracking time statistics
@@ -88,22 +98,22 @@ int main(int argc, char **argv)
     // Main loop
     // step 4 依次追踪序列中的每一张图像
     cv::Mat im;
-    for(int ni=0; ni<nImages; ni++)
-    {
+    for (int ni = 0; ni < nImages; ni++) {
         // Read image from file
         // step 4.1 读根据前面获得的图像文件名读取图像,读取过程中不改变图像的格式 
-        im = cv::imread(vstrImageFilenames[ni],CV_LOAD_IMAGE_UNCHANGED);
+        im = cv::imread(vstrImageFilenames[ni], CV_LOAD_IMAGE_UNCHANGED);
         double tframe = vTimestamps[ni];
 
         // step 4.2 图像的合法性检查
-        if(im.empty())
-        {
+        if (im.empty()) {
             cerr << endl << "Failed to load image at: "
-                 <<  vstrImageFilenames[ni] << endl;
+                 << vstrImageFilenames[ni] << endl;
             return 1;
         }
 
         // step 4.3 开始计时
+//条件编译:
+// 判断某个宏是否被定义，若已定义，执行随后的语句
 #ifdef COMPILEDWITHC11
         std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 #else
@@ -112,7 +122,7 @@ int main(int argc, char **argv)
 
         // Pass the image to the SLAM system
         // step 4.4 追踪当前图像
-        SLAM.TrackMonocular(im,tframe);
+        SLAM.TrackMonocular(im, tframe);
 
         // step 4.5 追踪完成,停止当前帧的图像计时, 并计算追踪耗时
 
@@ -122,21 +132,21 @@ int main(int argc, char **argv)
         std::chrono::monotonic_clock::time_point t2 = std::chrono::monotonic_clock::now();
 #endif
 
-        double ttrack= std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
+        double ttrack = std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
 
-        vTimesTrack[ni]=ttrack;
+        vTimesTrack[ni] = ttrack;
 
         // Wait to load the next frame
         // step 4.6 根据图像时间戳中记录的两张图像之间的时间和现在追踪当前图像所耗费的时间,继续等待指定的时间以使得下一张图像能够
         // 按照时间戳被送入到SLAM系统中进行跟踪
-        double T=0;
-        if(ni<nImages-1)
-            T = vTimestamps[ni+1]-tframe;
-        else if(ni>0)
-            T = tframe-vTimestamps[ni-1];
+        double T = 0;
+        if (ni < nImages - 1)
+            T = vTimestamps[ni + 1] - tframe;
+        else if (ni > 0)
+            T = tframe - vTimestamps[ni - 1];
 
-        if(ttrack<T)
-            usleep((T-ttrack)*1e6);
+        if (ttrack < T)
+            usleep((T - ttrack) * 1e6);
     }
 
     // step 5 如果所有的图像都预测完了,那么终止当前的SLAM系统
@@ -145,15 +155,14 @@ int main(int argc, char **argv)
 
     // Tracking time statistics
     // step 6 计算平均耗时
-    sort(vTimesTrack.begin(),vTimesTrack.end());
+    sort(vTimesTrack.begin(), vTimesTrack.end());
     float totaltime = 0;
-    for(int ni=0; ni<nImages; ni++)
-    {
-        totaltime+=vTimesTrack[ni];
+    for (int ni = 0; ni < nImages; ni++) {
+        totaltime += vTimesTrack[ni];
     }
     cout << "-------" << endl << endl;
-    cout << "median tracking time: " << vTimesTrack[nImages/2] << endl;
-    cout << "mean tracking time: " << totaltime/nImages << endl;
+    cout << "median tracking time: " << vTimesTrack[nImages / 2] << endl;
+    cout << "mean tracking time: " << totaltime / nImages << endl;
 
     // Save camera trajectory
     // step 7 保存TUM格式的相机轨迹
@@ -166,21 +175,22 @@ int main(int argc, char **argv)
 
 // 从文件中加载图像序列中每一张图像的文件路径和时间戳
 void LoadImages(const string &strImagePath, const string &strPathTimes,
-                vector<string> &vstrImages, vector<double> &vTimeStamps)
-{
+                vector<string> &vstrImages, vector<double> &vTimeStamps) {
     // 打开文件
     ifstream fTimes;
     fTimes.open(strPathTimes.c_str());
+////    vector 的reserve增加了vector的capacity，但是它的size没有改变！而resize改变了vector的capacity同时也增加了它的size！
+////    原因如下：
+////    reserve是容器预留空间，但在空间内不真正创建元素对象，所以在没有添加新的对象之前，不能引用容器内的元素。加入新的元素时，要调用push_back()/insert()函数。
+////    resize是改变容器的大小，且在创建对象，因此，调用这个函数之后，就可以引用容器内的对象了，因此当加入新的元素时，用operator[]操作符，或者用迭代器来引用元素对象。此时再调用push_back()函数，是加在这个新的空间后面的。
     vTimeStamps.reserve(5000);
     vstrImages.reserve(5000);
     // 遍历文件
-    while(!fTimes.eof())
-    {
+    while (!fTimes.eof()) {
         string s;
-        getline(fTimes,s);
+        getline(fTimes, s);
         // 只有在当前行不为空的时候执行
-        if(!s.empty())
-        {
+        if (!s.empty()) {
             stringstream ss;
             ss << s;
             // 生成当前行所指出的RGB图像的文件名称
@@ -188,7 +198,7 @@ void LoadImages(const string &strImagePath, const string &strPathTimes,
             double t;
             ss >> t;
             // 记录该图像的时间戳
-            vTimeStamps.push_back(t/1e9);
+            vTimeStamps.push_back(t / 1e9);
 
         }
     }
