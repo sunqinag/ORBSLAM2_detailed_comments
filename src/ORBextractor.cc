@@ -468,7 +468,6 @@ static int bit_pattern_31_[256*4] =
 };
 
 //特征点提取器的构造函数
-
 ORBextractor::ORBextractor(int _nfeatures,		//指定要提取的特征点数目
 						   float _scaleFactor,	//指定图像金字塔的缩放系数
 						   int _nlevels,		//指定图像金字塔的层数
@@ -998,7 +997,7 @@ vector<cv::KeyPoint> ORBextractor::DistributeOctTree(const vector<cv::KeyPoint>&
     }// 根据兴趣点分布,利用4叉树方法对图像进行划分区域
 
     // Retain the best point in each node
-    // Step 7 保留每个区域响应值最大的一个兴趣点
+    //// Step 7 保留每个区域响应值最大的一个兴趣点
     //使用这个vector来存储我们感兴趣的特征点的过滤结果
     vector<cv::KeyPoint> vResultKeys;
 
@@ -1129,6 +1128,7 @@ void ORBextractor::ComputeKeyPointsOctTree(
                 }
 
                 //当图像cell中检测到FAST角点的时候执行下面的语句
+
                 if(!vKeysCell.empty())
                 {
 					//遍历其中的所有FAST角点

@@ -123,10 +123,10 @@ Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeSt
     :mpORBvocabulary(voc),mpORBextractorLeft(extractorLeft),mpORBextractorRight(extractorRight), mTimeStamp(timeStamp), mK(K.clone()),mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth),
      mpReferenceKF(static_cast<KeyFrame*>(NULL))
 {
-    // Step 1 帧的ID 自增
+    //! Step 1 帧的ID 自增
     mnId=nNextId++;
 
-    // Step 2 计算图像金字塔的参数 
+    //! Step 2 计算图像金字塔的参数 
 	//获取图像金字塔的层数
     mnScaleLevels = mpORBextractorLeft->GetLevels();
 	//这个是获得层与层之前的缩放比
@@ -143,7 +143,7 @@ Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeSt
     mvInvLevelSigma2 = mpORBextractorLeft->GetInverseScaleSigmaSquares();
 
     // ORB extraction
-    // Step 3 对左目右目图像提取ORB特征点, 第一个参数0-左图， 1-右图。为加速计算，同时开了两个线程计算
+    //! Step 3 对左目右目图像提取ORB特征点, 第一个参数0-左图， 1-右图。为加速计算，同时开了两个线程计算
     thread threadLeft(&Frame::ExtractORB,		//该线程的主函数
 					  this,						//当前帧对象的对象指针
 					  0,						//表示是左图图像
@@ -161,11 +161,11 @@ Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeSt
     if(mvKeys.empty())
         return;
 	
-    // Step 4 用OpenCV的矫正函数、内参对提取到的特征点进行矫正
+    //! Step 4 用OpenCV的矫正函数、内参对提取到的特征点进行矫正
     // 实际上由于双目输入的图像已经预先经过矫正,所以实际上并没有对特征点进行任何处理操作
     UndistortKeyPoints();
 
-    // Step 5 计算双目间特征点的匹配，只有匹配成功的特征点会计算其深度,深度存放在 mvDepth 
+    //! Step 5 计算双目间特征点的匹配，只有匹配成功的特征点会计算其深度,深度存放在 mvDepth 
 	// mvuRight中存储的应该是左图像中的点所匹配的在右图像中的点的横坐标（纵坐标相同）
     ComputeStereoMatches();
 
@@ -223,10 +223,10 @@ Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeSt
     :mpORBvocabulary(voc),mpORBextractorLeft(extractor),mpORBextractorRight(static_cast<ORBextractor*>(NULL)),
      mTimeStamp(timeStamp), mK(K.clone()),mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth)
 {
-    // Step 1 帧的ID 自增
+    //! Step 1 帧的ID 自增
     mnId=nNextId++;
 
-    // Step 2 计算图像金字塔的参数 
+    //! Step 2 计算图像金字塔的参数 
 	//获取图像金字塔的层数
     mnScaleLevels = mpORBextractorLeft->GetLevels();
 	//获取每层的缩放因子
@@ -245,7 +245,7 @@ Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeSt
     /** 3. 提取彩色图像(其实现在已经灰度化成为灰度图像了)的特征点 \n Frame::ExtractORB() */
 
     // ORB extraction
-	// Step 3 对图像进行提取特征点, 第一个参数0-左图， 1-右图
+	//! Step 3 对图像进行提取特征点, 第一个参数0-左图， 1-右图
     ExtractORB(0,imGray);
 
 	//获取特征点的个数
@@ -255,10 +255,10 @@ Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeSt
     if(mvKeys.empty())
         return;
 
-	// Step 4 用OpenCV的矫正函数、内参对提取到的特征点进行矫正
+	//! Step 4 用OpenCV的矫正函数、内参对提取到的特征点进行矫正
     UndistortKeyPoints();
 
-	// Step 5 获取图像的深度，并且根据这个深度推算其右图中匹配的特征点的视差
+	//! Step 5 获取图像的深度，并且根据这个深度推算其右图中匹配的特征点的视差
     ComputeStereoFromRGBD(imDepth);
 
     // 初始化本帧的地图点
@@ -316,10 +316,10 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
      mTimeStamp(timeStamp), mK(K.clone()), mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth)
 {
     // Frame ID
-	// Step 1 帧的ID 自增
+	//! Step 1 帧的ID 自增
     mnId=nNextId++;
 
-    // Step 2 计算图像金字塔的参数 
+    //! Step 2 计算图像金字塔的参数 
     // Scale Level Info
 	//获取图像金字塔的层数
     mnScaleLevels = mpORBextractorLeft->GetLevels();
@@ -337,7 +337,7 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
     mvInvLevelSigma2 = mpORBextractorLeft->GetInverseScaleSigmaSquares();
 
     // ORB extraction
-	// Step 3 对这个单目图像进行提取特征点, 第一个参数0-左图， 1-右图
+	//! Step 3 对这个单目图像进行提取特征点, 第一个参数0-左图， 1-右图
     ExtractORB(0,imGray);
 
 	//求出特征点的个数
@@ -347,7 +347,7 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
     if(mvKeys.empty())
         return;
 
-    // Step 4 用OpenCV的矫正函数、内参对提取到的特征点进行矫正 
+    //! Step 4 用OpenCV的矫正函数、内参对提取到的特征点进行矫正 
     UndistortKeyPoints();
 
     // Set no stereo information
@@ -399,7 +399,7 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
  */
 void Frame::AssignFeaturesToGrid()
 {
-    // Step 1  给存储特征点的网格数组 Frame::mGrid 预分配空间
+    //! Step 1  给存储特征点的网格数组 Frame::mGrid 预分配空间
 	// ? 这里0.5 是为什么？节省空间？
     // FRAME_GRID_COLS = 64，FRAME_GRID_ROWS=48
     int nReserve = 0.5f*N/(FRAME_GRID_COLS*FRAME_GRID_ROWS);
@@ -408,7 +408,7 @@ void Frame::AssignFeaturesToGrid()
         for (unsigned int j=0; j<FRAME_GRID_ROWS;j++)
             mGrid[i][j].reserve(nReserve);
 
-    // Step 2 遍历每个特征点，将每个特征点在mvKeysUn中的索引值放到对应的网格mGrid中
+    //! Step 2 遍历每个特征点，将每个特征点在mvKeysUn中的索引值放到对应的网格mGrid中
     for(int i=0;i<N;i++)
     {
 		//从类的成员变量中获取已经去畸变后的特征点
@@ -496,7 +496,7 @@ bool Frame::isInFrustum(MapPoint *pMP, float viewingCosLimit)
     pMP->mbTrackInView = false;
 
     // 3D in absolute coordinates
-    // Step 1 获得这个地图点的世界坐标
+    //! Step 1 获得这个地图点的世界坐标
     cv::Mat P = pMP->GetWorldPos(); 
 
     // 3D in camera coordinates
@@ -507,12 +507,12 @@ bool Frame::isInFrustum(MapPoint *pMP, float viewingCosLimit)
     const float &PcZ = Pc.at<float>(2);
 
     // Check positive depth
-    // Step 2 关卡一：检查这个地图点在当前帧的相机坐标系下，是否有正的深度.如果是负的，表示出错，直接返回false
+    //! Step 2 关卡一：检查这个地图点在当前帧的相机坐标系下，是否有正的深度.如果是负的，表示出错，直接返回false
     if(PcZ<0.0f)
         return false;
 
     // Project in image and check it is not outside
-    // Step 3 关卡二：将MapPoint投影到当前帧的像素坐标(u,v), 并判断是否在图像有效范围内
+    //! Step 3 关卡二：将MapPoint投影到当前帧的像素坐标(u,v), 并判断是否在图像有效范围内
     const float invz = 1.0f/PcZ;			
     const float u=fx*PcX*invz+cx;			
     const float v=fy*PcY*invz+cy;			
@@ -524,7 +524,7 @@ bool Frame::isInFrustum(MapPoint *pMP, float viewingCosLimit)
         return false;
 
     // Check distance is in the scale invariance region of the MapPoint
-    // Step 4 关卡三：计算MapPoint到相机中心的距离, 并判断是否在尺度变化的距离内
+    //! Step 4 关卡三：计算MapPoint到相机中心的距离, 并判断是否在尺度变化的距离内
      // 得到认为的可靠距离范围:[0.8f*mfMinDistance, 1.2f*mfMaxDistance]
     const float maxDistance = pMP->GetMaxDistanceInvariance();
     const float minDistance = pMP->GetMinDistanceInvariance();
@@ -540,7 +540,7 @@ bool Frame::isInFrustum(MapPoint *pMP, float viewingCosLimit)
         return false;
 
     // Check viewing angle
-    // Step 5 关卡四：计算当前相机指向地图点向量和地图点的平均观测方向夹角的余弦值, 若小于cos(viewingCosLimit), 即夹角大于viewingCosLimit弧度则返回
+    //! Step 5 关卡四：计算当前相机指向地图点向量和地图点的平均观测方向夹角的余弦值, 若小于cos(viewingCosLimit), 即夹角大于viewingCosLimit弧度则返回
     cv::Mat Pn = pMP->GetNormal();
 
 	// 计算当前相机指向地图点向量和地图点的平均观测方向夹角的余弦值，注意平均观测方向为单位向量
@@ -551,10 +551,10 @@ bool Frame::isInFrustum(MapPoint *pMP, float viewingCosLimit)
         return false;
 
     // Predict scale in the image
-    // Step 6 根据地图点到光心的距离来预测一个尺度（仿照特征点金字塔层级）
+    //! Step 6 根据地图点到光心的距离来预测一个尺度（仿照特征点金字塔层级）
     const int nPredictedLevel = pMP->PredictScale(dist,		//这个点到光心的距离
 												  this);	//给出这个帧
-    // Step 7 记录计算得到的一些参数
+    //! Step 7 记录计算得到的一些参数
     // Data used by the tracking	
     // 通过置位标记 MapPoint::mbTrackInView 来表示这个地图点要被投影 
     pMP->mbTrackInView = true;	
@@ -594,7 +594,7 @@ vector<size_t> Frame::GetFeaturesInArea(const float &x, const float  &y, const f
     vector<size_t> vIndices;
     vIndices.reserve(N);
 
-    // Step 1 计算半径为r圆左右上下边界所在的网格列和行的id
+    //! Step 1 计算半径为r圆左右上下边界所在的网格列和行的id
     // 查找半径为r的圆左侧边界所在网格列坐标。这个地方有点绕，慢慢理解下：
     // (mnMaxX-mnMinX)/FRAME_GRID_COLS：表示列方向每个网格可以平均分得几个像素（肯定大于1）
     // mfGridElementWidthInv=FRAME_GRID_COLS/(mnMaxX-mnMinX) 是上面倒数，表示每个像素可以均分几个网格列（肯定小于1）
@@ -628,7 +628,7 @@ vector<size_t> Frame::GetFeaturesInArea(const float &x, const float  &y, const f
     //? 改为 const bool bCheckLevels = (minLevel>=0) || (maxLevel>=0);
     const bool bCheckLevels = (minLevel>0) || (maxLevel>=0);
 
-    // Step 2 遍历圆形区域内的所有网格，寻找满足条件的候选特征点，并将其index放到输出里
+    //! Step 2 遍历圆形区域内的所有网格，寻找满足条件的候选特征点，并将其index放到输出里
     for(int ix = nMinCellX; ix<=nMaxCellX; ix++)
     {
         for(int iy = nMinCellY; iy<=nMaxCellY; iy++)
@@ -723,7 +723,7 @@ void Frame::ComputeBoW()
  */
 void Frame::UndistortKeyPoints()
 {
-    // Step 1 如果第一个畸变参数为0，不需要矫正。第一个畸变参数k1是最重要的，一般不为0，为0的话，说明畸变参数都是0
+    //! Step 1 如果第一个畸变参数为0，不需要矫正。第一个畸变参数k1是最重要的，一般不为0，为0的话，说明畸变参数都是0
 	//变量mDistCoef中存储了opencv指定格式的去畸变参数，格式为：(k1,k2,p1,p2,k3)
     if(mDistCoef.at<float>(0)==0.0)
     {
@@ -732,7 +732,7 @@ void Frame::UndistortKeyPoints()
     }
 
 
-    // Step 2 如果畸变参数不为0，用OpenCV函数进行畸变矫正
+    //! Step 2 如果畸变参数不为0，用OpenCV函数进行畸变矫正
     // Fill matrix with points
     // N为提取的特征点数量，为满足OpenCV函数输入要求，将N个特征点保存在N*2的矩阵中
     cv::Mat mat(N,2,CV_32F);
@@ -760,7 +760,7 @@ void Frame::UndistortKeyPoints()
     mat=mat.reshape(1);
 
     // Fill undistorted keypoint vector
-    // Step 存储校正后的特征点
+    //! Step 存储校正后的特征点
     mvKeysUn.resize(N);
 	//遍历每一个特征点
     for(int i=0; i<N; i++)
@@ -863,7 +863,7 @@ void Frame::ComputeStereoMatches()
 	// 右图特征点数量，N表示数量 r表示右图，且不能被修改
     const int Nr = mvKeysRight.size();
 
-	// Step 1. 行特征点统计. 考虑到尺度金字塔特征，一个特征点可能存在于多行，而非唯一的一行
+	//! Step 1. 行特征点统计. 考虑到尺度金字塔特征，一个特征点可能存在于多行，而非唯一的一行
     for(int iR = 0; iR < Nr; iR++) {
 
         // 获取特征点ir的y坐标，即行号
@@ -881,7 +881,7 @@ void Frame::ComputeStereoMatches()
             vRowIndices[yi].push_back(iR);
     }
 
-    // Step 2 -> 3. 粗匹配 + 精匹配
+    //! Step 2 -> 3. 粗匹配 + 精匹配
     // 对于立体矫正后的两张图，在列方向(x)存在最大视差maxd和最小视差mind
     // 也即是左图中任何一点p，在右图上的匹配点的范围为应该是[p - maxd, p - mind], 而不需要遍历每一行所有的像素
     // maxd = baseline * length_focal / minZ
@@ -919,7 +919,7 @@ void Frame::ComputeStereoMatches()
         size_t bestIdxR = 0;
         const cv::Mat &dL = mDescriptors.row(iL);
         
-        // Step2. 粗配准. 左图特征点il与右图中的可能的匹配点进行逐个比较,得到最相似匹配点的相似度和索引
+        //! Step2. 粗配准. 左图特征点il与右图中的可能的匹配点进行逐个比较,得到最相似匹配点的相似度和索引
         for(size_t iC=0; iC<vCandidates.size(); iC++) {
 
             const size_t iR = vCandidates[iC];
@@ -949,7 +949,7 @@ void Frame::ComputeStereoMatches()
     
         
         // 如果刚才匹配过程中的最佳描述子距离小于给定的阈值
-        // Step 3. 精确匹配. 
+        //! Step 3. 精确匹配. 
         if(bestDist<thOrbDist) {
             // 计算右图特征点x坐标和对应的金字塔尺度
             const float uR0 = mvKeysRight[bestIdxR].pt.x;
@@ -1022,7 +1022,7 @@ void Frame::ComputeStereoMatches()
             if(bestincR==-L || bestincR==L)
                 continue;
 
-			// Step 4. 亚像素插值, 使用最佳匹配点及其左右相邻点构成抛物线
+			//! Step 4. 亚像素插值, 使用最佳匹配点及其左右相邻点构成抛物线
             // 使用3点拟合抛物线的方式，用极小值代替之前计算的最优是差值
             //    \                 / <- 由视差为14，15，16的相似度拟合的抛物线
             //      .             .(16)
@@ -1055,14 +1055,14 @@ void Frame::ComputeStereoMatches()
                 // 根据视差值计算深度信息
                 // 保存最相似点的列坐标(x)信息
                 // 保存归一化sad最小相似度
-                // Step 5. 最优视差值/深度选择.
+                //! Step 5. 最优视差值/深度选择.
                 mvDepth[iL]=mbf/disparity;
                 mvuRight[iL] = bestuR;
                 vDistIdx.push_back(pair<int,int>(bestDist,iL));
         }   
     }
     }
-    // Step 6. 删除离缺点(outliers)
+    //! Step 6. 删除离缺点(outliers)
     // 块匹配相似度阈值判断，归一化sad最小，并不代表就一定是匹配的，比如光照变化、弱纹理、无纹理等同样会造成误匹配
     // 误匹配判断条件  norm_sad > 1.5 * 1.4 * median
     sort(vDistIdx.begin(),vDistIdx.end());

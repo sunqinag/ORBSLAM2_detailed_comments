@@ -353,7 +353,7 @@ void System::ActivateLocalizationMode()
 {
 	//上锁
     unique_lock<mutex> lock(mMutexMode);
-    //设置标志
+    //设置标志+
     mbActivateLocalizationMode = true;
 }
 

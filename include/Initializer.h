@@ -243,7 +243,7 @@ private:
      * @param[in & out] vNormalizedPoints             特征点归一化后的坐标
      * @param[in & out] T                             归一化特征点的变换矩阵
      */
-    void Normalize(const vector<cv::KeyPoint> &vKeys, vector<cv::Point2f> &vNormalizedPoints, cv::Mat &T);
+    static void Normalize(const vector<cv::KeyPoint> &vKeys, vector<cv::Point2f> &vNormalizedPoints, cv::Mat &T);
 
     // 
 
